@@ -33,7 +33,8 @@ if ischar(filenames)
 end
 subject = filenames{1}(1:2);
 time_str = datestr(now, 'ddmmyyyy_HHMMSS');
-save_path_kmeans = [DATAPAH, 'kmeans_cvsa/cfg/kmeans_' subject '_' time_str '.yaml'];
+kmeans_file = ['kmeans_' subject '_' time_str '.yaml'];
+save_path_kmeans = [DATAPAH, 'kmeans_cvsa/cfg/' kmeans_file];
 save_path_qda_dataset = [DATAPAH 'qda_cvsa/create_qda/datasets/data_' subject '_' time_str '.mat'];
 
 th_high = inf;
@@ -241,7 +242,8 @@ for idx_trial =  1:ntrial
         end
     end
 end
-save(save_path_qda_dataset, 'X', 'y', 'save_path_kmeans')
+occipital = {'P3', 'PZ', 'P4', 'POZ', 'O1', 'O2', 'P5', 'P1', 'P2', 'P6', 'PO5', 'PO3', 'PO4', 'PO6', 'PO7', 'PO8', 'OZ'}; [~, ch_occipital] = ismember(occipital, channels_label);
+save(save_path_qda_dataset, 'X', 'y', 'kmeans_file', 'classes', 'ch_occipital', 'occipital', 'filenames')
 
 
 %% ----------- FUNCTIONS --------

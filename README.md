@@ -66,7 +66,7 @@ The K-Means model (the `.yaml` file containing centroids, mu, sigma, etc.) is ge
 This script is responsible for:
 1.  Training the K-Means model based on a training dataset.
 2.  Exporting all required parameters (`centroids`, `mu`, `sigma`, `indices`, etc.) into the YAML file format required by this node.
-3.  Generating and saving the datasets that are subsequently used to train the **QDA (Quadratic Discriminant Analysis)** classifier for the IC (Impaired Consciousness) state.
+3.  Generating and saving the dataset used to train the **QDA (Quadratic Discriminant Analysis)** classifier for the IC (Impaired Consciousness) state. This dataset is saved as a **`.mat` file** which, in addition to the data, includes parameters such as the path to the K-Means classifier, the class labels, and the occipital channels (both names and indices, with the **indices in MATLAB notation**).
 
 ---
 
@@ -84,7 +84,7 @@ This script is responsible for:
 ### 5. Output
 
 * **Topic:** `/cvsa/neuroprediction/kmeans`
-* **Data:** Publishes the classification probability based on the K-Means model.
+* **Data:** Publishes the classification probability based on the K-Means model. It is a NeuroOutput message
 
 ---
 
