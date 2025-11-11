@@ -179,6 +179,7 @@ for c = 1:ntrial
 end
 
 %% ----------------- KMEANS -----------------
+% update to work with subbands -> tesista
 K = 2;
 choosen_band = 2; % choose 8-14
 
@@ -251,7 +252,7 @@ function save_kmeans(C, mu_features, sigma_features, files, DATAPAH, subject, o_
     filenamesStr = strjoin(files, ';\n');
 
     rowStrings = cell(size(band,2), 1);
-    for i = 1:K
+    for i = 1:size(band,2)
         c_row = band{i}; 
         innerListStr = strjoin(arrayfun(@(x) sprintf('%d', x), c_row, 'UniformOutput', false), ', ');
         rowStrings{i} = sprintf('    - [%s]', innerListStr);

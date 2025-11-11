@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  processing_cvsa
 )
 
 ## System dependencies are found with CMake's conventions
@@ -104,7 +105,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES qda_cvsa
-  CATKIN_DEPENDS roscpp rospy std_msgs
+  CATKIN_DEPENDS roscpp rospy std_msgs processing_cvsa
 #  DEPENDS system_lib
 )
 
@@ -115,7 +116,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -195,6 +196,15 @@ include_directories(
 ## Testing ##
 #############
 
+add_executable(test_publisher_kmeans_cvsa test/node/publisher.cpp)
+target_link_libraries(test_publisher_kmeans_cvsa
+  ${catkin_LIBRARIES}
+)
+
+add_executable(test_logger_kmeans_cvsa test/node/logger.cpp)
+target_link_libraries(test_logger_kmeans_cvsa
+  ${catkin_LIBRARIES}
+)
 ## Add gtest based cpp test target and link libraries
 # catkin_add_gtest(${PROJECT_NAME}-test test/test_qda_cvsa.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
