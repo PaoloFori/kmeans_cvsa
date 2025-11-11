@@ -8,13 +8,13 @@ filein = [datapath ,'test/processed_data.csv'];
 data = readmatrix(filein);
 disp(['[info] Data loaded. Matrix of size: ' num2str(size(data,1)) 'x' num2str(size(data,2))])
 
-path_yaml = [datapath ,'cfg/kmeans_c7.yaml'];
+path_yaml = [datapath ,'cfg/test.yaml'];
 disp(['Caricamento modello da: ', path_yaml]);
 try
     modelData = ReadYaml(path_yaml);
     params = modelData.KmeansModelCfg.params;
 catch ME
-    disp('Error in the loading of the YAML file. Do you have YAMLMatlab installed? Is the path correct?.');
+    disp('Error in the loading of the YAML file. Is the file path correct? Do you have YAMLMatlab installed? Is the path correct?.');
     disp(ME.message);
     return;
 end

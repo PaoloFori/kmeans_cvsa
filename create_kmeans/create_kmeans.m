@@ -5,9 +5,9 @@ addpath('/home/paolo/cvsa/ic_cvsa_ws/src/analysis_cvsa/EOG')
 addpath('/home/paolo/cvsa/ic_cvsa_ws/src/analysis_cvsa/equal_ros')
 
 %% Initialization
-bands = [{[6 11]} {[8 14]} {[11 16]}];
+bands = [{[8 14]}];
 bands_str = cellfun(@(x) sprintf('%d-%d', x(1), x(2)), bands, 'UniformOutput', false);
-DATAPAH = '/home/paolo/cvsa/ic_cvsa_ws/src/kmeans_cvsa/cfg/';
+DATAPAH = '/home/paolo/cvsa/ic_cvsa_ws/src/';
 nbands = length(bands);
 signals = cell(1, nbands);
 headers = cell(1, nbands);
@@ -32,6 +32,9 @@ if ischar(filenames)
     filenames = {filenames};
 end
 subject = filenames{1}(1:2);
+time_str = datestr(now, 'ddmmyyyy_HHMMSS');
+save_path_kmeans = [DATAPAH, 'kmeans_cvsa/cfg/kmeans_' subject '_' time_str '.yaml'];
+save_path_qda_dataset = [DATAPAH 'qda_cvsa/create_qda/datasets/data_' subject '_' time_str '.mat'];
 
 th_high = inf;
 
@@ -156,11 +159,6 @@ trial_data(:,:,[1, 2, 19],:) = 0; % remove the power of the EOG channel, FP1 anf
 
 %% compute sparsity
 % define regions
-occipital = {'P3', 'PZ', 'P4', 'POZ', 'O1', 'O2', 'P5', 'P1', 'P2', 'P6', 'PO5', 'PO3', 'PO4', 'PO6', 'PO7', 'PO8', 'OZ'}; [~, ch_occipital] = ismember(occipital, channels_label);
-central = {'CP3', 'CP1', 'C3', 'FC3', 'C1', 'FC1', 'CP4', 'C4', 'FC4', 'CP2', 'C2', 'FC2', 'FCZ', 'CZ'}; [~, ch_central] = ismember(central, channels_label);
-frontal = {'F3', 'F1', 'F2', 'F4', 'FP1', 'FP2', 'FZ'}; [~, ch_frontal] = ismember(frontal, channels_label);
-nchannelsSelected = size(ch_occipital, 2);
-
 nsparsity = 3;
 sparsity = nan(min_trial_data, nbands, ntrial, nsparsity); % sample x band x trial x sparsity
 
@@ -181,7 +179,7 @@ end
 %% ----------------- KMEANS -----------------
 % update to work with subbands -> tesista
 K = 2;
-choosen_band = 2; % choose 8-14
+choosen_band = 1; % choose 8-14
 
 sparsity_cf = squeeze(sparsity(minDurFix+minDurCue+1:end, choosen_band,:,:));
 
@@ -192,7 +190,7 @@ mu_features = mean(data_2D, 1);
 sigma_features = std(data_2D, 0, 1);
 sigma_features(sigma_features == 0) = eps;
 data_standardized_2D = (data_2D - mu_features) ./ sigma_features;
-data_standardized_3D = reshape(data_standardized_2D, size(data_3D, 1), ntrial, size(data_3D,3));
+sparsity_cf = reshape(data_standardized_2D, size(data_3D, 1), ntrial, size(data_3D,3));
 
 disp('Kmeans execution...');
 
@@ -213,20 +211,42 @@ distances = pdist2(train_kmeans, C);
 [~, raw_labels] = min(distances, [], 2);
 
 % save the cluster for each data
-cluster_labels_train = nan(size(sparsity_cf, 1), ntrial);
+cluster_labels = nan(size(sparsity_cf, 1), ntrial);
 for c = 1:ntrial
-    cluster_labels_train(:,c) = raw_labels((c-1)*size(sparsity_cf, 1) + 1: c * size(sparsity_cf, 1));
+    cluster_labels(:,c) = raw_labels((c-1)*size(sparsity_cf, 1) + 1: c * size(sparsity_cf, 1));
 end
 
+ic_state_c_str = ''; nic_state_c_str = '';
+for i = 1:size(C,2)
+    ic_state_c_str = [ic_state_c_str ' ' num2str(C(1,i))];
+    nic_state_c_str = [nic_state_c_str ' ' num2str(C(2,i))];
+end
+disp('C:')
+disp(['IC state : ' ic_state_c_str ' (expected positive)'])
+disp(['NIC state: ' nic_state_c_str])
+
 %% save the kmeans
-save_kmeans(C, mu_features, sigma_features, filenames, DATAPAH, subject, o_l, o_r, frontal, c_l, c_r, excluded_chs, channels_label, bands(choosen_band))
+save_kmeans(C, mu_features, sigma_features, filenames, save_path_kmeans, o_l, o_r, frontal, c_l, c_r, excluded_chs, channels_label, bands(choosen_band))
 
 %% extract and save data for the QDA
+data = squeeze(trial_data(min_durCUE+min_durFIX+1:end,choosen_band,:,:)); % take just the 8-14 band
+nsamples = size(data,1);
+X = [];
+y = [];
+for idx_trial =  1:ntrial
+    for idx_sample = 1:nsamples
+        if cluster_labels(idx_sample, idx_trial) == 1 % IC state
+            X = [X; data(idx_sample,:,idx_trial)];
+            y = [y; trial_typ(idx_trial)];
+        end
+    end
+end
+save(save_path_qda_dataset, 'X', 'y', 'save_path_kmeans')
 
 
 %% ----------- FUNCTIONS --------
 % save kmeans
-function save_kmeans(C, mu_features, sigma_features, files, DATAPAH, subject, o_l_idx, o_r_idx, frontal_idx, c_l_idx, c_r_idx, excluded_chs, channels_labels, band)
+function save_kmeans(C, mu_features, sigma_features, files, save_path_kmeans, o_l_idx, o_r_idx, frontal_idx, c_l_idx, c_r_idx, excluded_chs, channels_labels, band)
     % --- Dati K-Means ---
     % C:               centroids 
     % mu_features:     mean of the data
@@ -332,12 +352,11 @@ function save_kmeans(C, mu_features, sigma_features, files, DATAPAH, subject, o_
                      centroidsStr,...
                      bands_str);
 
-    file_name = [DATAPAH 'kmeans_' subject '.yaml'];
-    fileID = fopen(file_name, 'w');
+    fileID = fopen(save_path_kmeans, 'w');
     fprintf(fileID, '%s', yamlContent);
     fclose(fileID);
 
-    disp(['Modello K-Means salvato in ', file_name]);
+    disp(['Modello K-Means salvato in ', save_path_kmeans]);
 end
 % sparsity 
 function [sparsity, label_sparsity, o_l, o_r, frontal, c_l, c_r, excluded_chs] = compute_features_kmeans(c_signal) %% in the features must be update for subbands
