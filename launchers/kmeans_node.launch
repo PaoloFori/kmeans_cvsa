@@ -1,0 +1,14 @@
+<launch>
+
+    <!-- KMEANS -->
+    <!-- arguments -->
+    <arg name="path_kmeans_model" default='/home/paolo/cvsa/ic_cvsa_ws/src/kmeans_cvsa/cfg/test.yaml'/>
+    <arg name="samplerate" default='16'/>
+
+    <!-- node -->
+    <node name="kmeans_node" pkg="kmeans_cvsa" type="kmeans.py" output="screen"> 
+        <param name="path_kmeans_model"   value="$(arg path_kmeans_model)"/>
+    </node>
+
+
+</launch>
