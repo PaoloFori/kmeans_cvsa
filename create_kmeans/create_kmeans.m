@@ -340,7 +340,7 @@ function save_kmeans(C, mu_features, sigma_features, files, DATAPAH, subject, o_
     disp(['Modello K-Means salvato in ', file_name]);
 end
 % sparsity 
-function [sparsity, label_sparsity, o_l, o_r, frontal, c_l, c_r, excluded_chs] = compute_features_kmeans(c_signal)
+function [sparsity, label_sparsity, o_l, o_r, frontal, c_l, c_r, excluded_chs] = compute_features_kmeans(c_signal) %% in the features must be update for subbands
     % take the one which contribute at the 95% of the energy
     sparsity = nan(3,1);
     label_sparsity = [{'LI'},{'GI'},{'GB'}];

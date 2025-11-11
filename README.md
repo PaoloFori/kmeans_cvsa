@@ -2,6 +2,8 @@
 
 This directory contains the K-Means clustering node. This node is responsible for classifying real-time EEG power-band features using a pre-trained K-Means model.
 
+---
+
 ### 1. Input
 
 * **Topic:** `/cvsa/eeg_power`
@@ -83,3 +85,17 @@ This script is responsible for:
 
 * **Topic:** `/cvsa/neuroprediction/kmeans`
 * **Data:** Publishes the classification probability based on the K-Means model.
+
+---
+
+### 6. Testing
+
+The validation tests for this node are located in the `test/node` directory. A **launch file** is provided in this same directory to run the test.
+
+The testing process validates the node's functionality across both ROS and MATLAB environments to ensure identical outputs:
+
+1.  **ROS Execution:** The test is initiated using the launch file. The node processes a standard input file, **`processed_data.csv`**. The resulting classification probabilities are captured and saved to **`classified.csv`**.
+2.  **MATLAB Verification:** The ROS output file, **`classified.csv`**, is loaded into MATLAB.
+3.  **Comparison:** The probabilities from **`classified.csv`** are compared against the results from the equivalent MATLAB implementation, which processes the *same* **`processed_data.csv`** input file.
+
+The test passes if the output probabilities from both ROS and MATLAB are identical, confirming that the processing logic is correct. You need Yamlmatlab just for the test to load the yaml file.

@@ -15,7 +15,7 @@ public:
         }
 
         std::string topic = "/cvsa/neuroprediction/kmeans";
-        sub_ = nh.subscribe(topic, 1, &LoggerNode::callback, this);
+        sub_ = nh.subscribe(topic, 10, &LoggerNode::callback, this);
     }
 
     ~LoggerNode() {
@@ -51,7 +51,7 @@ public:
 
         collected_rows_.push_back(prob_row);
 
-        std::cout << "Received sample " << msg->neuroheader.seq << std::endl;
+        ROS_INFO("ID_seq: %d.", msg->neuroheader.seq);
     }
 
 private:

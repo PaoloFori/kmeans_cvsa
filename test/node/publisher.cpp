@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
     int total_samples = full_data.rows();
     ROS_INFO("Loaded data: %d samples x %d channels.", total_samples, n_channels);
 
-    ros::Publisher pub = nh.advertise<processing_cvsa::eeg_power>(topic, 1);
+    ros::Publisher pub = nh.advertise<processing_cvsa::eeg_power>(topic, 10);
     ros::Rate loop_rate(sample_rate);
 
     ROS_INFO("Waiting for a  subscriber on topic '%s'...", topic.c_str());

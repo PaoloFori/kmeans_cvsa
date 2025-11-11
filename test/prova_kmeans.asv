@@ -14,18 +14,20 @@ try
     modelData = ReadYaml(path_yaml);
     params = modelData.KmeansModelCfg.params;
 catch ME
-    disp('Error in the loading of the YAML file. Do you have YAMLMatlab installed? Is the path correct?.');
+    disp('Error in the loading of the YAML file. Do you have YAMLMatlab installed? Is the path correct? nel path.');
     disp(ME.message);
     return;
 end
-mu_model = cellfun(@(x) x(1), params.mu);
-sigma_model = cellfun(@(x) x(1), params.sigma);
+mu_model = params.mu;
+sigma_model = params.sigma;
 centroids_cell = params.centroids; % Sarà una cella Kx1
 K = params.K;
 nfeatures = params.nfeatures;
 C_model = nan(K, nfeatures);
 try
-    C_model = cellfun(@(x) x(1), params.centroids);
+    for i = 1:K
+        C_model(i, :) = cell2mat(centroids_cell{i});
+    end
 catch
     disp('Errore nella lettura dei centroidi. Controlla il formato del file YAML.');
     return;
@@ -33,10 +35,10 @@ end
 fprintf('Modello K-Means (K=%d, NFeatures=%d) caricato con successo.\n', K, nfeatures);
 
 %% features extraction and classification
-sparsity = nan(size(data, 1), nfeatures);
+sparsity = nan(size(data));
 for idx_sample = 1:size(data,1)
     c_signal = data(idx_sample,:);
-    [sparsity(idx_sample,:), ~, ~, ~, ~, ~, ~, ~] = compute_features_kmeans(c_signal);
+    [sparsity, ~, ~, ~, ~, ~, ~, ~] = compute_features_kmeans(c_signal);
 end
 
 data_standardized = (sparsity - mu_model) ./ sigma_model;
@@ -44,6 +46,7 @@ distances = pdist2(data_standardized, C_model);
 [~, new_raw_labels] = min(distances, [], 2);
 
 scores = -distances;
+probabilities = softmax(scores, 'DataFormat', 'BC');
 exp_scores = exp(scores);
 sum_exp_scores = sum(exp_scores, 2);
 probabilities = exp_scores ./ sum_exp_scores;
@@ -51,19 +54,22 @@ probabilities = exp_scores ./ sum_exp_scores;
 disp('Data classified.');
 
 %% Load file of rosneuro
-classID = 1;
+channelId = 10;
 SampleRate = 16;
-start = 1;
+start = 50;
 
-files{1} = [datapath 'test/node/classified.csv'];
+files{1} = [datapath 'test/node/clasified.csv'];
 
 for i=1:length(files)
     file = files{i};
     disp(['Loading file: ' file])
     ros_data = readmatrix(file);
     matlab_data = probabilities;
-
-    c_title = "processed with ros node simulation";
+    if i == 1
+        c_title = "processed with the class";
+    else
+        c_title = "processed with ros node simulation";
+    end
     nsamples = size(ros_data,1);
     t = 0:1/SampleRate:nsamples/SampleRate - 1/SampleRate;
 
@@ -71,14 +77,14 @@ for i=1:length(files)
     figure;
     subplot(2, 1, 1);
     hold on;
-    plot(t(start:end), ros_data(start:size(t,2), classID), 'b', 'LineWidth', 1);
-    plot(t(start:end), matlab_data(start:size(t,2), classID), 'r');
+    plot(t(start:end), ros_data(start:size(t,2), channelId), 'b', 'LineWidth', 1);
+    plot(t(start:end), matlab_data(start:size(t,2), channelId), 'r');
     legend('rosneuro', 'matlab');
     hold off;
     grid on;
 
     subplot(2,1,2)
-    bar(t(start:end), abs(ros_data(start:size(t,2), classID)- matlab_data(start:size(t,2), classID)));
+    bar(t(start:end), abs(ros_data(start:size(t,2), channelId)- matlab_data(start:size(t,2), channelId)));
     grid on;
     xlabel('time [s]');
     ylabel('amplitude [uV]');

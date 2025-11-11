@@ -123,7 +123,7 @@ class KMeansClassifier:
         dfet_std_2d = dfet_std.reshape(1, -1)
   
         distances = cdist(dfet_std_2d, self.centroids, 'euclidean')
-        neg_distances = -distances[0] # Ora è un array (K,)
+        neg_distances = -distances[0] 
         
         exp_values = np.exp(neg_distances - np.max(neg_distances))
         probabilities = exp_values / np.sum(exp_values)
