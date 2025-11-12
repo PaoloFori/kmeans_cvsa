@@ -63,6 +63,7 @@ class KMeansClassifier:
 
     def compute_sparsity_features(self, signal, nbands):
         sparsity = np.zeros(self.nfeatures)
+        idx_sparsity = 0
         
         for idx_band in range(0, nbands):
             c_signal = signal[idx_band,:]
@@ -72,7 +73,8 @@ class KMeansClassifier:
 
             denominator = P_right_window + P_left_window + np.finfo(float).eps
             LAP_history = (P_right_window - P_left_window) / denominator
-            sparsity[0] = np.abs(LAP_history) # LI
+            sparsity[idx_sparsity] = np.abs(LAP_history) # LI
+            idx_sparsity += 1
 
             # --- 2. Feature GI (Gini * Occipital Power) ---
             all_chs = np.arange(len(c_signal))
@@ -107,11 +109,12 @@ class KMeansClassifier:
             else:
                 occipital_power = 0
 
-            sparsity[1] = occipital_power * gi # GI
-
+            sparsity[idx_sparsity] = occipital_power * gi # GI
+            idx_sparsity += 1
 
             # --- 3. Feature GB (Global Brain Activity) ---
-            sparsity[2] = global_mean # GB
+            sparsity[idx_sparsity] = global_mean # GB
+            idx_sparsity += 1
         
         return sparsity
 
@@ -138,7 +141,7 @@ class KMeansClassifier:
         
         reshaped_data = np.array(data).reshape(nchannels, nbands)
         
-        tmp = []
+        tmp = [] # [bands x channels]
         for i, c_band_features in enumerate(self.bands_features):
             for j, filter_band in enumerate(all_bands):
                 if np.array_equal(c_band_features, filter_band):

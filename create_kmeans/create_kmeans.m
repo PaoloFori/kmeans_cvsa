@@ -243,8 +243,9 @@ for idx_trial =  1:ntrial
     end
 end
 occipital = {'P3', 'PZ', 'P4', 'POZ', 'O1', 'O2', 'P5', 'P1', 'P2', 'P6', 'PO5', 'PO3', 'PO4', 'PO6', 'PO7', 'PO8', 'OZ'}; [~, ch_occipital] = ismember(occipital, channels_label);
-save(save_path_qda_dataset, 'X', 'y', 'kmeans_file', 'classes', 'ch_occipital', 'occipital', 'filenames')
-
+bands = bands(choosen_band);
+save(save_path_qda_dataset, 'X', 'y', 'kmeans_file', 'classes', 'ch_occipital', 'occipital', 'filenames', 'bands')
+disp(['QDA model saved in ', save_path_qda_dataset]);
 
 %% ----------- FUNCTIONS --------
 % save kmeans
@@ -358,7 +359,7 @@ function save_kmeans(C, mu_features, sigma_features, files, save_path_kmeans, o_
     fprintf(fileID, '%s', yamlContent);
     fclose(fileID);
 
-    disp(['Modello K-Means salvato in ', save_path_kmeans]);
+    disp(['K-Means model saved in ', save_path_kmeans]);
 end
 % sparsity 
 function [sparsity, label_sparsity, o_l, o_r, frontal, c_l, c_r, excluded_chs] = compute_features_kmeans(c_signal) %% in the features must be update for subbands
