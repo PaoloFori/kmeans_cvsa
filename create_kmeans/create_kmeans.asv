@@ -25,6 +25,7 @@ nchannels = 39;
 nclasses = length(classes);
 filterOrder = 4;
 avg = 1;% 0.75;
+eog_threshold = 500;
 
 %% Load file
 [filenames, pathname] = uigetfile('*.gdf', 'Select GDF Files', 'MultiSelect', 'on');
@@ -32,10 +33,8 @@ if ischar(filenames)
     filenames = {filenames};
 end
 subject = filenames{1}(1:2);
-time_str = datestr(now, 'ddmmyyyy_HHMMSS');
-kmeans_file = ['kmeans_' subject '_' time_str '.yaml'];
-save_path_kmeans = [DATAPAH, 'kmeans_cvsa/cfg/' kmeans_file];
-save_path_qda_dataset = [DATAPAH 'qda_cvsa/create_qda/datasets/data_' subject '_' time_str '.mat'];
+
+th_high = inf;
 
 %% concatenate the files
 nFiles = length(filenames);
@@ -52,7 +51,7 @@ for idx_file= 1: nFiles
     for idx_band = 1:nbands
         band = bands{idx_band};
 
-        % for power band using hilbert transformation and artefact remotion -----------------------------------------------
+        % for power band using hilbert transformation
         bufferSize = floor(avg*sampleRate);
         chunkSize = 32;
         eog.filterOrder = 4;
@@ -232,7 +231,7 @@ disp(['NIC state: ' nic_state_c_str])
 save_kmeans(C, mu_features, sigma_features, filenames, save_path_kmeans, o_l, o_r, frontal, c_l, c_r, excluded_chs, channels_label, bands(choosen_band))
 
 %% extract and save data for the QDA
-data = squeeze(trial_data(minDurCue+minDurFix+1:end,choosen_band,:,:)); % take just the 8-14 band
+data = squeeze(trial_data(min_durCUE+min_durFIX+1:end,choosen_band,:,:)); % take just the 8-14 band
 nsamples = size(data,1);
 X = [];
 y = [];
