@@ -25,7 +25,7 @@ class KMeansClassifier:
             rospy.loginfo("K-Means configurated correctly.")
         
         rospy.Subscriber('/cvsa/eeg_power', eeg_power, self.callback)
-        self.pub = rospy.Publisher('/cvsa/neuroprediction/kmeans', NeuroOutput, queue_size=10)
+        self.pub = rospy.Publisher('/cvsa/neuroprediction/icnic', NeuroOutput, queue_size=10)
         
         rospy.spin()
         
@@ -34,13 +34,17 @@ class KMeansClassifier:
         with open(self.path_decoder, 'r') as file:
             params = yaml.safe_load(file)['KmeansModelCfg']['params']
             
+        with open(self.path_decoder, 'r') as file:
+            model_params = yaml.safe_load(file)['KmeansModelCfg']['model_params']
+            
         self.kmeans_name = yaml.safe_load(open(self.path_decoder, 'r'))['KmeansModelCfg']['name']
         
         # Load parameters
         self.mu = np.array(params['mu'])
         self.sigma = np.array(params['sigma'])
-        self.centroids = np.array(params['centroids'])
-        self.K = int(params['K'])
+        self.centroids = np.array(model_params['centroids'])
+        self.K = int(model_params['K'])
+        self.classes = np.array(model_params['classes'])
         
         # Controllo di sanità
         if self.K != self.centroids.shape[0]:
@@ -163,6 +167,7 @@ class KMeansClassifier:
         output.hardpredict.data = hard_pred_vector.tolist() 
         output.decoder.type = self.kmeans_name
         output.decoder.path = self.path_decoder
+        output.decoder.classes = self.classes.tolist()
         
         self.pub.publish(output)
         

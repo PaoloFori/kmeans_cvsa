@@ -83,7 +83,7 @@ This script is responsible for:
 
 ### 5. Output
 
-* **Topic:** `/cvsa/neuroprediction/kmeans`
+* **Topic:** `/cvsa/neuroprediction/icnic`
 * **Data:** Publishes the classification probability based on the K-Means model. It is a NeuroOutput message
 
 ---
