@@ -9,7 +9,7 @@ data = readmatrix(filein);
 disp(['[info] Data loaded. Matrix of size: ' num2str(size(data,1)) 'x' num2str(size(data,2))])
 
 path_yaml = [datapath ,'cfg/test.yaml'];
-disp(['Caricamento modello da: ', path_yaml]);
+disp(['Loading model form: ', path_yaml]);
 try
     modelData = ReadYaml(path_yaml);
     params = modelData.KmeansModelCfg.params;
@@ -27,10 +27,10 @@ C_model = nan(K, nfeatures);
 try
     C_model = cellfun(@(x) x(1), params.centroids);
 catch
-    disp('Errore nella lettura dei centroidi. Controlla il formato del file YAML.');
+    disp('Error loading the centroids. Check the yaml file.');
     return;
 end
-fprintf('Modello K-Means (K=%d, NFeatures=%d) caricato con successo.\n', K, nfeatures);
+fprintf('K-Means model (K=%d, NFeatures=%d) loaded.\n', K, nfeatures);
 
 %% features extraction and classification
 sparsity = nan(size(data, 1), nfeatures);

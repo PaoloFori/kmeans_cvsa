@@ -35,7 +35,7 @@ subject = filenames{1}(1:2);
 time_str = datestr(now, 'ddmmyyyy_HHMMSS');
 kmeans_file = ['kmeans_' subject '_' time_str '.yaml'];
 save_path_kmeans = [DATAPAH, 'kmeans_cvsa/cfg/' kmeans_file];
-save_path_qda_dataset = [DATAPAH 'qda_cvsa/create_qda/datasets/data_' subject '_' time_str '.mat'];
+save_path_qda_dataset = [DATAPAH 'qda_cvsa/create_qda/datasets/kmeans/data_' subject '_' time_str '.mat'];
 
 %% concatenate the files
 nFiles = length(filenames);
@@ -58,11 +58,11 @@ for idx_file= 1: nFiles
         eog.filterOrder = 4;
         eog.band = [1 7];
         eog.label = {'FP1', 'FP2', 'EOG'};
-        eog.h_threshold = 80;
-        eog.v_threshold = 80;
+        eog.h_threshold = 70;
+        eog.v_threshold = 70;
         muscle.filterOrder = 4;
         muscle.freq = 1; % remove antneuro problems
-        muscle.threshold = 100;
+        muscle.threshold = 150;
         [signal_processed, header_processed] = processing_onlineROS_hilbert(c_signal, header, nchannels, bufferSize, filterOrder, band, chunkSize);
         artifact = artifact_rejection(c_signal, header, nchannels, bufferSize, chunkSize, eog, muscle);
 
