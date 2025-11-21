@@ -387,10 +387,10 @@ function [sparsity, label_sparsity, o_l, o_r, frontal, c_l, c_r, excluded_chs] =
     non_zeros_chs = setdiff(1:size(c_signal,2), excluded_chs);
     global_mean = mean(c_signal(non_zeros_chs)); % car filter
     current_signal_normalized = c_signal - global_mean; % remove the global energy
-    mean_roi = [mean(current_signal_normalized(frontal)), mean(current_signal_normalized(c_l)), ...
+    mean_roi_raw = [mean(current_signal_normalized(frontal)), mean(current_signal_normalized(c_l)), ...
         mean(current_signal_normalized(c_r)), mean(current_signal_normalized(o_l)), ...
         mean(current_signal_normalized(o_r))];
-    mean_roi = abs(mean_roi); % make sure the energy is positive--> we are using peak and valli with same significance
+    mean_roi = abs(mean_roi_raw); % make sure the energy is positive--> we are using peak and valli with same significance
     mean_roi_ordered = sort(mean_roi);
     n = length(mean_roi_ordered);
     sum_roi_p = 0;
@@ -404,8 +404,11 @@ function [sparsity, label_sparsity, o_l, o_r, frontal, c_l, c_r, excluded_chs] =
         gi = 0;
     end
     % compute the weight factor
-    pot_occipital = mean_roi(4) + mean_roi(5);
-    pot_total_roi = sum(mean_roi); % Somma di F, CL, CR, OL, OR
+    mean_roi_raw = [mean(c_signal(frontal)), mean(c_signal(c_l)), ...
+                    mean(c_signal(c_r)), mean(c_signal(o_l)), ...
+                    mean(c_signal(o_r))];
+    pot_occipital = max(mean_roi_raw(4), mean_roi_raw(5));
+    pot_total_roi = sum(mean_roi_raw); % Somma di F, CL, CR, OL, OR
     if pot_total_roi > 0
         occipital_power = pot_occipital / pot_total_roi;
     else
