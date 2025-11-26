@@ -45,6 +45,7 @@ class KMeansClassifier:
         self.centroids = np.array(model_params['centroids'])
         self.K = int(model_params['K'])
         self.classes = np.array(model_params['classes'])
+        self.type = model_params['type']
         
         # Controllo di sanità
         if self.K != self.centroids.shape[0]:
@@ -72,8 +73,14 @@ class KMeansClassifier:
         for idx_band in range(0, nbands):
             c_signal = signal[idx_band,:]
             # --- 1. Feature LI (Lateralization Index) ---
-            P_left_window = np.mean(c_signal[self.o_l])
-            P_right_window = np.mean(c_signal[self.o_r])
+            if self.type == 'cvsa':
+                P_left_window = np.mean(c_signal[self.o_l])
+                P_right_window = np.mean(c_signal[self.o_r])
+            elif self.type == 'mi':
+                P_left_window = np.mean(c_signal[self.c_l])
+                P_right_window = np.mean(c_signal[self.c_r])
+            else:
+                return
 
             denominator = P_right_window + P_left_window + np.finfo(float).eps
             LAP_history = (P_right_window - P_left_window) / denominator
