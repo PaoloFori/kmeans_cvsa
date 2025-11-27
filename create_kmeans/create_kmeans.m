@@ -162,12 +162,11 @@ c_l_ch = {'FC1', 'C3', 'CP1', 'FC3', 'C1', 'CP3'};
 c_r_ch = {'FC2', 'C4', 'CP2', 'FC4', 'C2', 'CP4'};
 excl_ch = {'FP1', 'FP2', 'EOG'};
 
-[~, o_l] = ismember(o_l_labels, channels_label);
-[~, o_r] = ismember(o_r_labels, channels_label);
-[~, c_l] = ismember(c_l_labels, channels_label);
-[~, c_r] = ismember(c_r_labels, channels_label);
-[~, excl_chs] = ismember(excl_labels, channels_label);
-
+[~, o_l] = ismember(o_l_ch, channels_label);
+[~, o_r] = ismember(o_r_ch, channels_label);
+[~, c_l] = ismember(c_l_ch, channels_label);
+[~, c_r] = ismember(c_r_ch, channels_label);
+[~, excl_chs] = ismember(excl_ch, channels_label);
 type = 'cvsa';
 
 for c = 1:ntrial
