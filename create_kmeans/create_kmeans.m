@@ -59,10 +59,10 @@ for idx_file= 1: nFiles
         eog.band = [1 7];
         eog.label = {'FP1', 'FP2', 'EOG'};
         eog.h_threshold = 70;
-        eog.v_threshold = 70;
+        eog.v_threshold = 100;
         muscle.filterOrder = 4;
         muscle.freq = 1; % remove antneuro problems
-        muscle.threshold = 150;
+        muscle.threshold = 120;
         [signal_processed, header_processed] = processing_onlineROS_hilbert(c_signal, header, nchannels, bufferSize, filterOrder, band, chunkSize);
         artifact = artifact_rejection(c_signal, header, nchannels, bufferSize, chunkSize, eog, muscle);
 
